@@ -1,0 +1,15 @@
+{
+  "name": "node-web-scrape",
+  "version": "0.0.1",
+  "description": "Scrape le web.",
+  "main": "app.js",
+  "author": "Nishant George Agrwal",
+  "dependencies": {
+    "express": "latest",
+    "request": "latest",
+    "cheerio": "latest"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.11.4"
+  }
+}
