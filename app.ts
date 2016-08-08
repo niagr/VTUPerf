@@ -25,13 +25,11 @@ interface IExtractResult extends ISemResult {
     sem: number;
 }
 
-type SemResultDict = {[sem: number]: ISemResult};
-
 function extract ($elem: cheerio.Cheerio): Promise<ISubjectRecord[]> {
 
     return new Promise ((resolve, reject) => {
 
-        var $td_list = $elem.children('td');
+        let $td_list = $elem.children('td');
         var sem = parseInt($td_list.eq(0).html().trim());
         var attempt = parseInt($td_list.eq(1).html().trim());
         var marks = parseInt($td_list.eq(2).html().trim());
@@ -64,11 +62,8 @@ function extractSubjectResults(html: string): ISubjectResultPartial[] {
     let subjectResults: ISubjectResultPartial[] = 
         $('table tr')
         .not('tr:first-child')  // leave out header
-        .filter(function(i) {   // leave out the spacer rows.
-            return ($(this).children('td').length >= 5)
-        })
+        .filter((i, tr) => $(tr).children('td').length >= 5) // leave out the spacer rows.
         .map((i, tr) => getMarksFromSubjectRow($(tr))).get() as any;
-
     return subjectResults;
 }
 
@@ -97,16 +92,12 @@ app.get('/result/:usn', function(req, res){
     request(url, function(error, response, html){
         if(!error) {
             var $ = cheerio.load(html);
-            debugger;
-            let $trList = $('table tr')
+            let $trList = 
+                $('table tr')
                 .not('tr:first-child')  // leave out header
-                .filter(function(i) {   // leave out the spacer rows.
-                    return ($(this).children('td').length >= 5)
-                });
-
-            let arr: IterableShim<Promise<ISubjectRecord[]>> = $trList.map(function (i, e) {
-                return extract($(e))
-            }).get() as any;
+                .filter((i, tr) => $(tr).children('td').length >= 5) // leave out the spacer rows.
+            let arr: IterableShim<Promise<ISubjectRecord[]>>;
+            arr = $trList.map((i, e) => extract($(e))).get() as any;
             Promise.all(arr).then(records => {
                 console.log(records);
                 res.json(records);
