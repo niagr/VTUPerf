@@ -10,11 +10,79 @@ interface ISemResult {
     percentage: number;
 }
 
+interface ISubjectResultPartial {
+    subjectCode: string;
+    internalMarks: number;
+    externalMarks: number;
+}
+
+interface ISubjectRecord extends ISubjectResultPartial {
+    sem: number;
+    attempt: number;
+}
+
 interface IExtractResult extends ISemResult {
     sem: number;
 }
 
 type SemResultDict = {[sem: number]: ISemResult};
+
+function extract ($elem: cheerio.Cheerio): Promise<ISubjectRecord[]> {
+
+    return new Promise ((resolve, reject) => {
+
+        var $td_list = $elem.children('td');
+        var sem = parseInt($td_list.eq(0).html().trim());
+        var attempt = parseInt($td_list.eq(1).html().trim());
+        var marks = parseInt($td_list.eq(2).html().trim());
+        var percentage = parseFloat($td_list.eq(4).html().trim());
+        
+        let subjectListLink = $td_list.eq(7).children('a').attr('href');
+        request(subjectListLink, null, (error, response, html) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            let subjectResults = extractSubjectResults(html);
+            let subjectRecords: ISubjectRecord[] = subjectResults.map(result => {
+                return {
+                    subjectCode: result.subjectCode,
+                    internalMarks: result.internalMarks,
+                    externalMarks: result.externalMarks,
+                    sem,
+                    attempt,
+                }
+            });
+            resolve(subjectRecords);
+        });
+    });
+}
+
+
+function extractSubjectResults(html: string): ISubjectResultPartial[] {
+    let $ = cheerio.load(html);
+    let subjectResults: ISubjectResultPartial[] = 
+        $('table tr')
+        .not('tr:first-child')  // leave out header
+        .filter(function(i) {   // leave out the spacer rows.
+            return ($(this).children('td').length >= 5)
+        })
+        .map((i, tr) => getMarksFromSubjectRow($(tr))).get() as any;
+
+    return subjectResults;
+}
+
+function getMarksFromSubjectRow ($tr: cheerio.Cheerio) : ISubjectResultPartial {
+    let $td_list = $tr.children('td');
+    let subjectCode = $td_list.eq(1).html().slice(1).trim();
+    let internalMarks = parseInt($td_list.eq(2).html());
+    let externalMarks = parseInt($td_list.eq(3).html());
+    return {
+        internalMarks,
+        externalMarks,
+        subjectCode
+    };
+}
 
 let app = express();
 
@@ -29,23 +97,21 @@ app.get('/result/:usn', function(req, res){
     request(url, function(error, response, html){
         if(!error) {
             var $ = cheerio.load(html);
-            var resDict: SemResultDict = {};
-            var foo = $('table tr').not('tr:first-child').each(function () { // leave out header
-                var $tr = $(this);
-                if ($tr.children('td').length < 5) // leave out the spacer rows.
-                    return;
-                var result = extract($tr);
-                // console.log(json);
-                if (result.attempt === 1) {
-                    resDict[result.sem] = {
-                        sem: result.sem,
-                        attempt: result.attempt,
-                        marks: result.marks,
-                        percentage: result.percentage
-                    };
-                }
+            debugger;
+            let $trList = $('table tr')
+                .not('tr:first-child')  // leave out header
+                .filter(function(i) {   // leave out the spacer rows.
+                    return ($(this).children('td').length >= 5)
+                });
+
+            let arr: IterableShim<Promise<ISubjectRecord[]>> = $trList.map(function (i, e) {
+                return extract($(e))
+            }).get() as any;
+            Promise.all(arr).then(records => {
+                console.log(records);
+                res.json(records);
             });
-            res.json(resDict);
+
         } 
     });
 })
@@ -54,21 +120,6 @@ app.get("/", (req, res) => res.send("hey"));
 
 app.listen('8081')
 console.log('Magic happens on port 8081');
-exports = module.exports = app;
 
-function extract ($elem: cheerio.Cheerio): IExtractResult {
-    var $td_list = $elem.children('td');
-    var sem = parseInt($td_list.eq(0).html().trim());
-    var attempt = parseInt($td_list.eq(1).html().trim());
-    var marks = parseInt($td_list.eq(2).html().trim());
-    var percentage = parseFloat($td_list.eq(4).html().trim());
+export default app;
 
-    var json = {
-        sem: sem,
-        attempt: attempt,
-        marks: marks,
-        percentage: percentage
-    }
-
-    return json;
-}
