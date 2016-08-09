@@ -61,9 +61,15 @@ app.get('/result/:usn', function (req, res) {
                 .filter(function (i, tr) { return $(tr).children('td').length >= 5; }); // leave out the spacer rows.
             var arr = void 0;
             arr = $trList.map(function (i, e) { return extract($(e)); }).get();
-            Promise.all(arr).then(function (records) {
-                console.log(records);
-                res.json(records);
+            Promise.all(arr).then(function (records2dArray) {
+                console.log("ahoyy!");
+                var dupRecords = flatten2dArray(records2dArray);
+                var uniqRecords = removeDuplicates(dupRecords);
+                // console.log(records);
+                console.log(dupRecords.length);
+                console.log(uniqRecords.length);
+                res.json(uniqRecords);
+                debugger;
             });
         }
     });
@@ -73,3 +79,25 @@ app.listen('8081');
 console.log('Magic happens on port 8081');
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = app;
+function removeDuplicates(records) {
+    var recordMap = new Map();
+    for (var _i = 0, records_1 = records; _i < records_1.length; _i++) {
+        var rec = records_1[_i];
+        var subjectCode = rec.subjectCode, sem = rec.sem, attempt = rec.attempt;
+        var id = subjectCode + "#" + sem + "#" + attempt;
+        if (recordMap.has(id))
+            continue;
+        else
+            recordMap.set(id, rec);
+    }
+    // console.log(JSON.stringify(Array.from(recordMap.values()), null, 4))
+    return Array.from(recordMap.values());
+}
+function flatten2dArray(arr) {
+    var newArr = [];
+    for (var _i = 0, arr_1 = arr; _i < arr_1.length; _i++) {
+        var elem = arr_1[_i];
+        newArr = newArr.concat(elem);
+    }
+    return newArr;
+}
