@@ -48,37 +48,6 @@ function getMarksFromSubjectRow($tr) {
         subjectCode: subjectCode
     };
 }
-var app = express();
-app.set('json spaces', 4);
-app.get('/result/:usn', function (req, res) {
-    var url = "http://www.fastvturesults.com/check_new_results/" + req.params.usn;
-    console.log("Received request for USN " + req.params.usn);
-    request(url, function (error, response, html) {
-        if (!error) {
-            var $ = cheerio.load(html);
-            var $trList = $('table tr')
-                .not('tr:first-child') // leave out header
-                .filter(function (i, tr) { return $(tr).children('td').length >= 5; }); // leave out the spacer rows.
-            var arr = void 0;
-            arr = $trList.map(function (i, e) { return extract($(e)); }).get();
-            Promise.all(arr).then(function (records2dArray) {
-                console.log("ahoyy!");
-                var dupRecords = flatten2dArray(records2dArray);
-                var uniqRecords = removeDuplicates(dupRecords);
-                // console.log(records);
-                console.log(dupRecords.length);
-                console.log(uniqRecords.length);
-                res.json(uniqRecords);
-                debugger;
-            });
-        }
-    });
-});
-app.get("/", function (req, res) { return res.send("hey"); });
-app.listen('8081');
-console.log('Magic happens on port 8081');
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = app;
 function removeDuplicates(records) {
     var recordMap = new Map();
     for (var _i = 0, records_1 = records; _i < records_1.length; _i++) {
@@ -101,3 +70,33 @@ function flatten2dArray(arr) {
     }
     return newArr;
 }
+var app = express();
+app.set('json spaces', 4);
+app.get('/result/:usn', function (req, res) {
+    var url = "http://www.fastvturesults.com/check_new_results/" + req.params.usn;
+    console.log("Received request for USN " + req.params.usn);
+    request(url, function (error, response, html) {
+        if (!error) {
+            var $ = cheerio.load(html);
+            var $trList = $('table tr')
+                .not('tr:first-child') // leave out header
+                .filter(function (i, tr) { return $(tr).children('td').length >= 5; }); // leave out the spacer rows.
+            var arr = void 0;
+            arr = $trList.map(function (i, e) { return extract($(e)); }).get();
+            Promise.all(arr).then(function (records2dArray) {
+                console.log("ahoyy!");
+                var dupRecords = flatten2dArray(records2dArray); // records may still contain duplicates
+                var uniqRecords = removeDuplicates(dupRecords);
+                console.log(dupRecords.length);
+                console.log(uniqRecords.length);
+                res.json(uniqRecords);
+                debugger;
+            });
+        }
+    });
+});
+app.get("/", function (req, res) { return res.send("hey"); });
+app.listen('8081');
+console.log('Magic happens on port 8081');
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = app;

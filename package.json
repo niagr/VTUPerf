@@ -5,8 +5,9 @@
   "main": "app.js",
   "author": "Nishant George Agrwal",
   "dependencies": {
+    "cheerio": "latest",
     "express": "latest",
-    "request": "latest",
-    "cheerio": "latest"
+    "pg": "^6.0.3",
+    "request": "latest"
   }
 }

@@ -2,6 +2,7 @@ import express = require('express');
 import fs = require('fs');
 import request = require('request');
 import cheerio = require('cheerio');
+import pg = require('pg');
 
 interface ISemResult {
     sem: number;
@@ -79,6 +80,27 @@ function getMarksFromSubjectRow ($tr: cheerio.Cheerio) : ISubjectResultPartial {
     };
 }
 
+function removeDuplicates (records: ISubjectRecord[]): ISubjectRecord[] {
+    const recordMap = new Map<string,ISubjectRecord>();
+    for (let rec of records) {
+        let {subjectCode, sem, attempt} = rec;
+        const id = `${subjectCode}#${sem}#${attempt}`;
+        if (recordMap.has(id)) 
+            continue;
+        else 
+            recordMap.set(id, rec);
+    }
+    // console.log(JSON.stringify(Array.from(recordMap.values()), null, 4))
+    return Array.from(recordMap.values());
+}
+
+function flatten2dArray <T> (arr: T[][]) : T[] {
+    let newArr: T[] = [];
+    for (let elem of arr)
+        newArr = newArr.concat(elem);
+    return newArr;
+}
+
 let app = express();
 
 app.set('json spaces', 4);
@@ -118,25 +140,3 @@ app.listen('8081')
 console.log('Magic happens on port 8081');
 
 export default app;
-
-function removeDuplicates (records: ISubjectRecord[]): ISubjectRecord[] {
-    const recordMap = new Map<string,ISubjectRecord>();
-    for (let rec of records) {
-        let {subjectCode, sem, attempt} = rec;
-        const id = `${subjectCode}#${sem}#${attempt}`;
-        if (recordMap.has(id)) 
-            continue;
-        else 
-            recordMap.set(id, rec);
-    }
-    // console.log(JSON.stringify(Array.from(recordMap.values()), null, 4))
-    return Array.from(recordMap.values());
-}
-
-function flatten2dArray <T> (arr: T[][]) : T[] {
-    let newArr: T[] = [];
-    for (let elem of arr) {
-        newArr = newArr.concat(elem);
-    }
-    return newArr;
-}

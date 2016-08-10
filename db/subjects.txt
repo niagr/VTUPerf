@@ -1,0 +1,55 @@
+10MAT11,Engineering Mathematics-I
+10CHE12,Engineering Chemistry
+10CCP13,Computer Concepts and C Programming
+10ELN15,Basic Electronics
+10CIV18,Environmental Studies
+10CPL26,Computer Concepts and C Programming Laboratory
+10CHEL27,Engineering Chemistry Lab
+10CED24,Computer Aided Engineering Drawing
+10MAT21,Engineering Mathematics-II
+10PHY12,Engineering Physics
+10CIV13,Elements of Civil Engg and Engineering Mechanics
+10EME14,Elements of Mechanical Engg
+10ELE15,Basic Electrical Engg
+10CIP18,Constitution of India and Professional Ethics	
+10PHYL17,Engineering Physics Laboratory
+10WSL16,Workshop Practice
+10MAT31,Engineering Mathematics-III
+10CS36,Object Oriented Programming with C++
+10CS35,Data Structures with C
+MATDIP301,Advanced Mathematics-I
+10CS33,Logic Design
+10CS34,Discrete Mathematical Structures
+10CS32,Electronic Circuits
+10CSL37,Data Structures with C/C++ Lab
+10CSL38,Electronic Circuits & Logic Design Lab
+MATDIP401,Advanced Mathematics-II
+10MAT41,Engineering Mathematics-IV
+10CS42,Graph Theory & Combinatorics
+10CS43,Design & Analysis of Algorithms
+10CS44,Unix & Shell Programming
+10CS45,Microprocessors
+10CS46,Computer Organization
+10CSL47,Design and Analysis of Algorithms Laboratory
+10CSL48,Microprocessors Laboratory
+10IS51,Software Engineering
+10CS52,Systems Software
+10CS53,Operating Systems
+10CS54,Database Management Systems
+10CS55,Computer Networks-I
+10CS56,Formal Languages & Automata Theory
+10CSL57,Database Applications Laboratory
+10CSL58,Systems Software and Operating systems laboratory
+10AL61,Management & Entrepreneurship
+10CS62,Unix System Programming
+10IS63,File Structures
+10CS64,Computer Networks-II
+10IS65,Software Testing
+10IS661,Operations Research
+10IS662,Compiler Design
+10IS663,Data Compression
+10IS664,Pattern Recognition
+10IS665,Computer Graphics & Visualization
+10IS666,Programming Languages
+10ISL67,File Structures Laboratory
+10ISL68,Software Testing Laboratory
