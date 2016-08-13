@@ -136,6 +136,23 @@ app.get('/result/:usn', function(req, res){
 
 app.get("/", (req, res) => res.send("hey"));
 
+const user = 'postgres';
+const password = 'openplz13';
+const host = 'localhost';
+const dbName = 'vturesults';
+const dbClient = new pg.Client(`postgres://${user}:${password}@${host}/${dbName}`);
+
+new Promise((resolve, reject) =>
+    dbClient.connect((e, c) => e ? reject(e) : resolve(c))
+).then((client: pg.Client) => {
+    console.log("connected successfully");
+    return client.query('SELECT * FROM student;');
+})
+.then(res => console.log(res.rows))
+.catch((e) => {
+    console.log(`ERROR:`, e);
+});
+
 app.listen('8081')
 console.log('Magic happens on port 8081');
 

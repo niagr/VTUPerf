@@ -1,12 +1,13 @@
 CREATE TABLE Results (
-	id int PRIMARY KEY,
+	id serial PRIMARY KEY,
 	usn VARCHAR(11),
-	attempt int,
-	sem int CHECK (sem < 9),
-	subject_code VARCHAR(7),
-	marks_external int,
-	marks_internal int,
-	percentage float CHECK (percentage < 100),
+	attempt int CHECK (attempt > 0),
+	sem int CHECK (sem < 9 AND sem > 0),
+	subject_code VARCHAR(10),
+	marks_external int CHECK (marks_external >= 0),
+	marks_internal int CHECK (marks_internal >= 0),
+	percentage float CHECK (percentage >= 0 AND percentage <= 100),
+	UNIQUE (sem, attempt),
 	FOREIGN KEY (subject_code) REFERENCES Subjects(subject_code),
 	FOREIGN KEY (usn) REFERENCES Students(usn)
 );
@@ -31,3 +32,4 @@ FROM (
 ) GROUP BY usn;
 
 	
+insert into results (usn, attempt, sem, subject_code, marks_external, marks_internal, percentage) values ('1ay13is071', 1, 1, '10CS32', 50, 15, 56.65); 

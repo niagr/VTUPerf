@@ -2,6 +2,7 @@
 var express = require('express');
 var request = require('request');
 var cheerio = require('cheerio');
+var pg = require('pg');
 function extract($elem) {
     return new Promise(function (resolve, reject) {
         var $td_list = $elem.children('td');
@@ -96,6 +97,21 @@ app.get('/result/:usn', function (req, res) {
     });
 });
 app.get("/", function (req, res) { return res.send("hey"); });
+var user = 'postgres';
+var password = 'openplz13';
+var host = 'localhost';
+var dbName = 'vturesults';
+var dbClient = new pg.Client("postgres://" + user + ":" + password + "@" + host + "/" + dbName);
+new Promise(function (resolve, reject) {
+    return dbClient.connect(function (e, c) { return e ? reject(e) : resolve(c); });
+}).then(function (client) {
+    console.log("connected successfully");
+    return client.query('SELECT * FROM student;');
+})
+    .then(function (res) { return console.log(res.rows); })
+    .catch(function (e) {
+    console.log("ERROR:", e);
+});
 app.listen('8081');
 console.log('Magic happens on port 8081');
 Object.defineProperty(exports, "__esModule", { value: true });
