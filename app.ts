@@ -90,8 +90,15 @@ function removeDuplicates (records: ISubjectRecord[]): ISubjectRecord[] {
         else 
             recordMap.set(id, rec);
     }
-    // console.log(JSON.stringify(Array.from(recordMap.values()), null, 4))
     return Array.from(recordMap.values());
+}
+
+function toTitleCase (str: string): string {
+    return (
+        str.split(' ')
+        .map((s) => s.charAt(0).toUpperCase() + s.substring(1).toLowerCase())
+        .join(' ')
+    );
 }
 
 function flatten2dArray <T> (arr: T[][]) : T[] {
@@ -109,11 +116,13 @@ app.get('/result/:usn', function(req, res){
     
     let url = `http://www.fastvturesults.com/check_new_results/${req.params.usn}`;
 
-    console.log(`Received request for USN ${req.params.usn}`);
+    console.log(`Received request for USN ${req.params.usn.toUpperCase()}`);
 
     request(url, function(error, response, html){
         if(!error) {
             var $ = cheerio.load(html);
+            const studentName = toTitleCase($('head title').html().split('(')[0]);
+            console.log(studentName);
             let $trList = 
                 $('table tr')
                 .not('tr:first-child')  // leave out header
@@ -127,7 +136,6 @@ app.get('/result/:usn', function(req, res){
                 console.log(dupRecords.length);
                 console.log(uniqRecords.length);
                 res.json(uniqRecords);
-                debugger;
             });
 
         } 
@@ -146,7 +154,7 @@ new Promise((resolve, reject) =>
     dbClient.connect((e, c) => e ? reject(e) : resolve(c))
 ).then((client: pg.Client) => {
     console.log("connected successfully");
-    return client.query('SELECT * FROM student;');
+    return client.query('SELECT * FROM students;');
 })
 .then(res => console.log(res.rows))
 .catch((e) => {

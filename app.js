@@ -60,8 +60,12 @@ function removeDuplicates(records) {
         else
             recordMap.set(id, rec);
     }
-    // console.log(JSON.stringify(Array.from(recordMap.values()), null, 4))
     return Array.from(recordMap.values());
+}
+function toTitleCase(str) {
+    return (str.split(' ')
+        .map(function (s) { return s.charAt(0).toUpperCase() + s.substring(1).toLowerCase(); })
+        .join(' '));
 }
 function flatten2dArray(arr) {
     var newArr = [];
@@ -75,10 +79,12 @@ var app = express();
 app.set('json spaces', 4);
 app.get('/result/:usn', function (req, res) {
     var url = "http://www.fastvturesults.com/check_new_results/" + req.params.usn;
-    console.log("Received request for USN " + req.params.usn);
+    console.log("Received request for USN " + req.params.usn.toUpperCase());
     request(url, function (error, response, html) {
         if (!error) {
             var $ = cheerio.load(html);
+            var studentName = toTitleCase($('head title').html().split('(')[0]);
+            console.log(studentName);
             var $trList = $('table tr')
                 .not('tr:first-child') // leave out header
                 .filter(function (i, tr) { return $(tr).children('td').length >= 5; }); // leave out the spacer rows.
@@ -91,7 +97,6 @@ app.get('/result/:usn', function (req, res) {
                 console.log(dupRecords.length);
                 console.log(uniqRecords.length);
                 res.json(uniqRecords);
-                debugger;
             });
         }
     });
@@ -106,7 +111,7 @@ new Promise(function (resolve, reject) {
     return dbClient.connect(function (e, c) { return e ? reject(e) : resolve(c); });
 }).then(function (client) {
     console.log("connected successfully");
-    return client.query('SELECT * FROM student;');
+    return client.query('SELECT * FROM students;');
 })
     .then(function (res) { return console.log(res.rows); })
     .catch(function (e) {
