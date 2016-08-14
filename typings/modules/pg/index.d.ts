@@ -190,8 +190,9 @@ export class Client extends EventEmitter {
   ssl: boolean;
 
   query(query: QueryConfig, callback?: QueryCallback): Query;
-  query(text: string, callback?: QueryCallback): Query;
+  query(text: string, callback: QueryCallback): Query;
   query(text: string, values: any[], callback?: QueryCallback): Query;
+  query(text: string): Promise<ResultSet>;
 
   connect(callback?: ClientConnectCallback): void;
   end(): void;

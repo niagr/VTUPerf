@@ -22,6 +22,11 @@ interface ISubjectRecord extends ISubjectResultPartial {
     attempt: number;
 }
 
+interface ISubjectRecordDb extends ISubjectRecord {
+    usn: string;
+    percentage: number;
+}
+
 interface IExtractResult extends ISemResult {
     sem: number;
 }
@@ -96,7 +101,7 @@ function removeDuplicates (records: ISubjectRecord[]): ISubjectRecord[] {
 function toTitleCase (str: string): string {
     return (
         str.split(' ')
-        .map((s) => s.charAt(0).toUpperCase() + s.substring(1).toLowerCase())
+        .map(s => s.charAt(0).toUpperCase() + s.substring(1).toLowerCase())
         .join(' ')
     );
 }
@@ -108,20 +113,91 @@ function flatten2dArray <T> (arr: T[][]) : T[] {
     return newArr;
 }
 
+function saveToDb (pgClient: pg.Client ,name: string, usn: string, records: ISubjectRecord[]): Promise<void> {
+    const STMNT_HEADER = `INSERT INTO results (usn, attempt, sem, subject_code, marks_external, marks_internal, percentage) VALUES`;
+    const values = records.map<string>(rec => 
+        `('${usn}',${rec.attempt},${rec.sem},'${rec.subjectCode}',${rec.externalMarks},${rec.internalMarks},${(rec.internalMarks + rec.externalMarks) / 125 * 100})`
+    ).join(',');
+    return (
+        (pgClient.query(`INSERT INTO students VALUES ('${usn}', '${name}');`))
+        .then(r => {pgClient.query(`${STMNT_HEADER} ${values};`)})
+        .catch(e => {
+            throw new Error('Could not save to database');
+        })
+    );
+}
+
+function checkUsnExistsInDb (usn: string, dbClient: pg.Client): Promise<boolean> {
+    const query = `SELECT * FROM students WHERE usn='${usn}';`;
+    return dbClient.query(query)
+    .then(res => res.rows.length > 0 ? true : false)
+    .catch(e => false);
+}
+
+function fetchResultsFromDb (usn: string, dbClient: pg.Client): Promise<ISubjectRecord[]> {
+    const query = `SELECT subject_code, marks_external, marks_internal, sem, attempt FROM results WHERE usn='${usn}';`;
+    return dbClient.query(query)
+    .then(res => {
+        if (res.rows.length > 0) {
+            return res.rows.map(result => {
+                return {
+                    subjectCode: result.subject_code,
+                    internalMarks: result.marks_internal,
+                    externalMarks: result.marks_external,
+                    sem: result.sem,
+                    attempt: result.attempt
+                };
+            });
+        } else {
+            return null;
+        } 
+    })
+    .catch(e => {
+        console.log(e);
+        throw e;
+    });
+}
+
 let app = express();
+
+// debugger;
 
 app.set('json spaces', 4);
 
 app.get('/result/:usn', function(req, res){
     
-    let url = `http://www.fastvturesults.com/check_new_results/${req.params.usn}`;
+    const usn = req.params.usn.toUpperCase();
+    let url = `http://www.fastvturesults.com/check_new_results/${usn}`;
 
-    console.log(`Received request for USN ${req.params.usn.toUpperCase()}`);
+    console.log(`Received request for USN ${usn.toUpperCase()}`);
 
-    request(url, function(error, response, html){
-        if(!error) {
+    checkUsnExistsInDb(usn, dbClient)
+    .then(exists => {
+        if (exists) {
+            console.log(`Found ${usn} in database`);
+            fetchResultsFromDb(usn, dbClient)
+            .then(records => res.json(records))
+            .catch(e => console.log(`could not fetch results from database: ${e}`));
+            return;
+        }
+        console.log(`${usn} not found in database.`);
+        return new Promise<string>((resolve, reject) => 
+            request(url, (e, r, html) => e ? reject(e) : resolve(html))
+        )
+        .then(html => {
+
+            if (!html) {
+                console.log(`html is undefined.`);
+                return;
+            }
+
             var $ = cheerio.load(html);
             const studentName = toTitleCase($('head title').html().split('(')[0]);
+            if (studentName.indexOf('Invalid') >= 0) {
+                console.log("Invalid USN");
+                res.send("Invalid username");
+                return;
+            }
             console.log(studentName);
             let $trList = 
                 $('table tr')
@@ -129,17 +205,46 @@ app.get('/result/:usn', function(req, res){
                 .filter((i, tr) => $(tr).children('td').length >= 5) // leave out the spacer rows.
             let arr: IterableShim<Promise<ISubjectRecord[]>>;
             arr = $trList.map((i, e) => extract($(e))).get() as any;
-            Promise.all(arr).then(records2dArray => {
-                console.log("ahoyy!")
+            return Promise.all(arr).then(records2dArray => {
                 const dupRecords = flatten2dArray(records2dArray); // records may still contain duplicates
                 const uniqRecords = removeDuplicates(dupRecords);
-                console.log(dupRecords.length);
-                console.log(uniqRecords.length);
                 res.json(uniqRecords);
-            });
-
-        } 
+                return saveToDb(dbClient, studentName, usn, uniqRecords);
+            })
+            .then(() => console.log('saved to db'))
+            .catch(e => console.log('could not save to db bro'));
+        });
     });
+    
+
+
+    // request(url, function(error, response, html){
+    //     if(!error) {
+    //         var $ = cheerio.load(html);
+    //         const studentName = toTitleCase($('head title').html().split('(')[0]);
+    //         if (studentName.indexOf('Invalid') >= 0) {
+    //             console.log("Invalid USN");
+    //             res.send("Invalid username");
+    //             return;
+    //         }
+    //         console.log(studentName);
+    //         let $trList = 
+    //             $('table tr')
+    //             .not('tr:first-child')  // leave out header
+    //             .filter((i, tr) => $(tr).children('td').length >= 5) // leave out the spacer rows.
+    //         let arr: IterableShim<Promise<ISubjectRecord[]>>;
+    //         arr = $trList.map((i, e) => extract($(e))).get() as any;
+    //         Promise.all(arr).then(records2dArray => {
+    //             const dupRecords = flatten2dArray(records2dArray); // records may still contain duplicates
+    //             const uniqRecords = removeDuplicates(dupRecords);
+    //             res.json(uniqRecords);
+    //             return saveToDb(dbClient, studentName, usn, uniqRecords);
+    //         })
+    //         .then(() => console.log('saved to db'))
+    //         .catch(e => console.log('could not save to db bro'));
+
+    //     } 
+    // });
 })
 
 app.get("/", (req, res) => res.send("hey"));
@@ -152,16 +257,17 @@ const dbClient = new pg.Client(`postgres://${user}:${password}@${host}/${dbName}
 
 new Promise((resolve, reject) =>
     dbClient.connect((e, c) => e ? reject(e) : resolve(c))
-).then((client: pg.Client) => {
-    console.log("connected successfully");
-    return client.query('SELECT * FROM students;');
+)
+.then((client: pg.Client) => {
+    console.log("connected to postgres database successfully");
 })
-.then(res => console.log(res.rows))
 .catch((e) => {
     console.log(`ERROR:`, e);
 });
 
 app.listen('8081')
 console.log('Magic happens on port 8081');
+
+debugger;
 
 export default app;

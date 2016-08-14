@@ -1,19 +1,19 @@
 10MAT11,Engineering Mathematics-I
-10CHE12,Engineering Chemistry
-10CCP13,Computer Concepts and C Programming
-10ELN15,Basic Electronics
-10CIV18,Environmental Studies
-10CPL26,Computer Concepts and C Programming Laboratory
-10CHEL27,Engineering Chemistry Lab
-10CED24,Computer Aided Engineering Drawing
-10MAT21,Engineering Mathematics-II
 10PHY12,Engineering Physics
 10CIV13,Elements of Civil Engg and Engineering Mechanics
 10EME14,Elements of Mechanical Engg
 10ELE15,Basic Electrical Engg
-10CIP18,Constitution of India and Professional Ethics	
-10PHYL17,Engineering Physics Laboratory
 10WSL16,Workshop Practice
+10PHYL17,Engineering Physics Laboratory
+10CIP18,Constitution of India and Professional Ethics	
+10MAT21,Engineering Mathematics-II
+10CHE22,Engineering Chemistry
+10CCP23,Computer Concepts and C Programming
+10CED24,Computer Aided Engineering Drawing
+10ELN25,Basic Electronics
+10CPL26,Computer Concepts and C Programming Laboratory
+10CHEL27,Engineering Chemistry Lab
+10CIV28,Environmental Studies
 10MAT31,Engineering Mathematics-III
 10CS36,Object Oriented Programming with C++
 10CS35,Data Structures with C
