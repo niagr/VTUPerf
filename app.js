@@ -120,6 +120,7 @@ var app = express();
 // debugger;
 app.set('json spaces', 4);
 app.get('/result/:usn', function (req, res) {
+    res.header("Access-Control-Allow-Origin", "*");
     var usn = req.params.usn.toUpperCase();
     var url = "http://www.fastvturesults.com/check_new_results/" + usn;
     console.log("Received request for USN " + usn.toUpperCase());
@@ -129,7 +130,10 @@ app.get('/result/:usn', function (req, res) {
             console.log("Found " + usn + " in database");
             fetchResultsFromDb(usn, dbClient)
                 .then(function (records) { return res.json(records); })
-                .catch(function (e) { return console.log("could not fetch results from database: " + e); });
+                .catch(function (e) {
+                console.log("could not fetch results from database: " + e);
+                res.send("Somthing went wrong");
+            });
             return;
         }
         console.log(usn + " not found in database.");

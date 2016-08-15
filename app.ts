@@ -165,6 +165,8 @@ let app = express();
 app.set('json spaces', 4);
 
 app.get('/result/:usn', function(req, res){
+
+    res.header("Access-Control-Allow-Origin", "*");
     
     const usn = req.params.usn.toUpperCase();
     let url = `http://www.fastvturesults.com/check_new_results/${usn}`;
@@ -177,7 +179,10 @@ app.get('/result/:usn', function(req, res){
             console.log(`Found ${usn} in database`);
             fetchResultsFromDb(usn, dbClient)
             .then(records => res.json(records))
-            .catch(e => console.log(`could not fetch results from database: ${e}`));
+            .catch(e => {
+                console.log(`could not fetch results from database: ${e}`)
+                res.send("Somthing went wrong");
+            });
             return;
         }
         console.log(`${usn} not found in database.`);
