@@ -78,12 +78,13 @@ function flatten2dArray(arr) {
 function saveToDb(pgClient, name, usn, records) {
     var STMNT_HEADER = "INSERT INTO results (usn, attempt, sem, subject_code, marks_external, marks_internal, percentage) VALUES";
     var values = records.map(function (rec) {
-        return ("('" + usn + "'," + rec.attempt + "," + rec.sem + ",'" + rec.subjectCode + "'," + rec.externalMarks + "," + rec.internalMarks + "," + (rec.internalMarks + rec.externalMarks) / 125 * 100 + ")");
+        return ("('" + usn + "'," + rec.attempt + "," + rec.sem + ",'" + rec.subjectCode + "'," + rec.externalMarks + "," + rec.internalMarks + ",") +
+            ((rec.internalMarks + rec.externalMarks) / 125 * 100 + ")");
     }).join(',');
     return ((pgClient.query("INSERT INTO students VALUES ('" + usn + "', '" + name + "');"))
-        .then(function (r) { pgClient.query(STMNT_HEADER + " " + values + ";"); })
+        .then(function (r) { return pgClient.query(STMNT_HEADER + " " + values + ";"); })
         .catch(function (e) {
-        throw new Error('Could not save to database');
+        throw new Error("Could not save to db: " + e);
     }));
 }
 function checkUsnExistsInDb(usn, dbClient) {
@@ -165,35 +166,9 @@ app.get('/result/:usn', function (req, res) {
                 return saveToDb(dbClient, studentName, usn, uniqRecords);
             })
                 .then(function () { return console.log('saved to db'); })
-                .catch(function (e) { return console.log('could not save to db bro'); });
+                .catch(function (e) { return console.log('could not save to db bro:', e); });
         });
     });
-    // request(url, function(error, response, html){
-    //     if(!error) {
-    //         var $ = cheerio.load(html);
-    //         const studentName = toTitleCase($('head title').html().split('(')[0]);
-    //         if (studentName.indexOf('Invalid') >= 0) {
-    //             console.log("Invalid USN");
-    //             res.send("Invalid username");
-    //             return;
-    //         }
-    //         console.log(studentName);
-    //         let $trList = 
-    //             $('table tr')
-    //             .not('tr:first-child')  // leave out header
-    //             .filter((i, tr) => $(tr).children('td').length >= 5) // leave out the spacer rows.
-    //         let arr: IterableShim<Promise<ISubjectRecord[]>>;
-    //         arr = $trList.map((i, e) => extract($(e))).get() as any;
-    //         Promise.all(arr).then(records2dArray => {
-    //             const dupRecords = flatten2dArray(records2dArray); // records may still contain duplicates
-    //             const uniqRecords = removeDuplicates(dupRecords);
-    //             res.json(uniqRecords);
-    //             return saveToDb(dbClient, studentName, usn, uniqRecords);
-    //         })
-    //         .then(() => console.log('saved to db'))
-    //         .catch(e => console.log('could not save to db bro'));
-    //     } 
-    // });
 });
 app.get("/", function (req, res) { return res.send("hey"); });
 var user = 'postgres';
@@ -212,6 +187,5 @@ new Promise(function (resolve, reject) {
 });
 app.listen('8081');
 console.log('Magic happens on port 8081');
-debugger;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = app;
