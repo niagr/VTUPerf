@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "vtuperf",
   "version": "1.0.0",
   "description": "",
@@ -14,17 +13,5 @@
     "express": "^4.14.0",
     "pg": "^6.1.0",
     "request": "^2.79.0"
-=======
-  "name": "node-web-scrape",
-  "version": "0.0.1",
-  "description": "Scrape le web.",
-  "main": "app.js",
-  "author": "Nishant George Agrwal",
-  "dependencies": {
-    "cheerio": "latest",
-    "express": "latest",
-    "pg": "^6.0.3",
-    "request": "latest"
->>>>>>> 5ab32f0275317fdc47422fdd4af470dd72af189d
   }
 }
