@@ -53,3 +53,72 @@ MATDIP401,Advanced Mathematics-II
 10IS666,Programming Languages
 10ISL67,File Structures Laboratory
 10ISL68,Software Testing Laboratory
+10CS71,Object Oriented Modeling & Design
+10IS72,Information Systems
+10CS73,Programming the Web
+10IS74,Data Warehousing & Data Mining
+10IS751,Advanced DBMS
+10IS752,Embedded Computing Systems
+10IS753,JAVA & J2EE
+10IS754,Multimedia Computing
+10IS755,Advanced Software Engineering
+10IS756,Neural Networks
+10IS761,C# Programming and .Net
+10IS762,Digital Image Processing
+10IS763,Game Theory
+10IS764,Artificial Intelligence
+10IS765,Storage Area Networks
+10IS766,Fuzzy Logic
+10CSL77,Networks Laboratory
+10CSL78,Web Programming Laboratory
+10IS841,Ad-hoc Networks
+10IS845,Clouds Grids and Clusters
+10IS846,Decision Support Systems
+10IS842,Information Retrieval
+10IS835,Information and Network Security
+10IS836,Microcontroller-Based Systems
+10IS834,Network Management Systems
+10IS85,Project Work
+10IS86,Seminar
+10IS844,Services Oriented Architecture
+10IS81,Software Architectures
+10IS843,Supply Chain Management
+10CS82,System Modeling and Simulation
+10IS833,User Interface Design
+10IS832,Web 2.0 and Rich Internet Applications
+10IS831,Wireless Networks and Mobile Computing
+10CS63,Compiler Design
+10CS65,Computer Graphics & Visualization
+10CS661,Operations Research
+10CS662,Signals & Systems
+10CS663,Data Compression
+10CS664,Pattern Recognition
+10CS665,Stochastic Models & Applications
+10CS666,Programming Languages
+10CSL67,COMPUTER GRAPHICS AND VISUALIZATION LABORATORY
+10CSL68,UNIX SYSTEMS PROGRAMMING LABORATORY
+10CS74,Advanced Computer Architectures
+10CS751,Advanced Database Management Systems
+10CS752,Digital Signal Processing
+10CS753,Java and J2EE
+10CS754,Multimedia Computing
+10CS755,Data Warehousing and Data Mining
+10CS756,Neural Networks
+10CS761,C# Programming and .Net
+10CS762,Digital Image Processing
+10CS763,Game Theory
+10CS764,Artificial Intelligence
+10CS765,Storage Area Networks
+10CS766,Fuzzy Logic
+10CS843,ARM Based System Design
+10CS841,Adhoc Networks
+10CS845,Clouds Grids and Clusters
+10CS835,Information and Network Security
+10CS836,Microcontroller-Based Systems
+10CS846,Multi-core Architecture and Programming
+10CS834,Network Management Systems
+10CS844,Services Oriented Architecture
+10CS842,Software Testing
+10CS833,VLSI Design and Algorithms
+10CS832,Web 2.0 and Rich Internet Applications
+10CS831,Wireless Networks and Mobile Computing
